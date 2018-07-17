@@ -1,0 +1,10 @@
+DROP TABLE Game;
+DROP TABLE Publisher;
+DROP TABLE Studio;
+DROP TABLE Contributor;
+DROP TABLE Region;
+DROP TABLE Console;
+DROP TABLE GameRelease;
+DROP TABLE Publishes;
+DROP TABLE Develops;
+DROP TABLE Contributes;
