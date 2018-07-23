@@ -1,28 +1,43 @@
 from django import forms
 
-BOOLEAN = ((1, "True"), (0, "False"))
-class insertGameForm(forms.Form):
-    title = forms.CharField(max_length=30, label = "Title:")
-    maingenre = forms.CharField(max_length = 15, label = "Genre:")
-    online = forms.ChoiceField(label = "Online Supported:", choices = BOOLEAN)
-    numplayers = forms.IntegerField(label = "Number of players:")
+BOOLEAN = ((3, " "), (1, "True"), (0, "False"))
+db_action = (("none", " "),("insert", "Add New Record"), ("update", "Update Existing Record"), ("delete", "Remove Record") )
 
-class insertStudioForm(forms.Form):
-    studioName  = forms.CharField(max_length = 30, label = "Studio:")
-    studioLocation = forms.CharField(max_length = 15, label="Studio's Location:")
-    studioFounded = forms.IntegerField(label = "Studio founded: ")
-    pubName  = forms.CharField(max_length = 30, label = "Publisher: ")
-    pubLocation = forms.CharField(max_length = 15, label=" Publisher's Location:")
-    pubFounded = forms.IntegerField(label = "Publisher founded:")
+class GameForm(forms.Form):
+    action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}), choices = db_action)
+    title = forms.CharField(max_length=30, label = "Title:", required = False)
+    maingenre = forms.CharField(max_length = 15, label = "Genre:", required = False)
+    online = forms.ChoiceField(label = "Online Supported:", choices = BOOLEAN, required = False)
+    numplayers = forms.IntegerField(label = "Number of players:", required = False)
+    
+class PublisherForm(forms.Form):
+    action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}), choices = db_action)
+    pubName  = forms.CharField(max_length = 30, label = "Publisher:", required = False)
+    location = forms.CharField(max_length = 15, label=" Publisher's Location:", required = False)
+    founded = forms.IntegerField(label = "Publisher founded:", required = False)
 
-class insertRegionConsoleForm(forms.Form):
-    regionName = forms.CharField(max_length = 20, label = "Region:")
-    ConsoleName = forms.CharField(max_length = 20, label = "Console:")
-    online = forms.ChoiceField(label = "Online:", choices = BOOLEAN)
-    numports = forms.IntegerField(label = "Number of Ports:")
-    maker = forms.CharField(max_length = 20, label =  "Maker:")
-    discont = forms.ChoiceField(label = "Discontinued? ", choices = BOOLEAN)
+class StudioForm(forms.Form):
+    action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}), choices = db_action)
+    studioName  = forms.CharField(max_length = 30, label = "Studio:", required = False)
+    location = forms.CharField(max_length = 15, label="Studio's Location:", required = False)
+    founded = forms.IntegerField(label = "Studio founded:", required = False)
 
-class insertContributorForm(forms.Form):
-    firstName = forms.CharField(max_length = 20, label = "First Name")
-    lastName = forms.CharField(max_length = 20, label = "Last Name")
+class RegionForm(forms.Form):
+    action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}),choices = db_action)
+    regionName = forms.CharField(max_length = 20, label = "Region:", required = True)
+    newRegionName = forms.CharField(max_length = 20, label = "Region: ", widget = forms.HiddenInput(), required = False)
+
+class ConsoleForm(forms.Form):
+    action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}), choices = db_action)
+    consoleName = forms.CharField(max_length = 20, label = "Console:", required = False)
+    online = forms.ChoiceField(label = "Online:", choices = BOOLEAN, required = False)
+    numports = forms.IntegerField(label = "Number of Ports:", required = False)
+    maker = forms.CharField(max_length = 20, label =  "Maker:", required = False)
+    discont = forms.ChoiceField(label = "Discontinued? ", choices = BOOLEAN, required = False)
+
+class ContributorForm(forms.Form):
+    action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}),choices = db_action)
+    firstName = forms.CharField(max_length = 20, label = "First Name", required = True)
+    lastName = forms.CharField(max_length = 20, label = "Last Name", required = True)
+    newFirstName = forms.CharField(max_length = 20, label = " New First Name", widget = forms.HiddenInput(), required = False)
+    newLastName = forms.CharField(max_length = 20, label = " New Last Name", widget = forms.HiddenInput(), required = False)

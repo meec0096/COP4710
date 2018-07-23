@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        function changeRequired()
+        { 
+            if (document.getElementById('id_action').value == "update")
+            {
+                document.getElementById('id_newFirstName').type = "text"
+                document.getElementById('id_newLastName').type = "text"
+                document.getElementById('id_newFirstName').required = true;
+                document.getElementById('id_newLastName').required = true;
+            }
+            else
+            {
+                document.getElementById('id_newFirstName').type = "hidden";
+                document.getElementById('id_newLastName').type = "hidden";
+                document.getElementById('id_newFirstName').required = false;
+                document.getElementById('id_newLastName').required = false;
+            }
+        }
+    </script>
+</head>
+<body>
+    {% load staticfiles %}
+    {% url 'insertConsole' as console %}
+    {% if status.success %}
+
+        <ul>
+            <li style="color: green;"> {{ status.success }} </li>
+        </ul>
+    {% elif status.error %}
+        <ul>
+            <li style="color: red;"> {{ status.error }} </li>
+        </ul>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Submit" />
+    </form>
+<body>
+</html>

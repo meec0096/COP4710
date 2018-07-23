@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        function changeRequired()
+        { 
+            if (document.getElementById('id_action').value == "update" || document.getElementById('id_action') == "delete")
+            {
+                document.getElementById('id_consoleName').required = true;
+                document.getElementById('id_online').required = false;
+                document.getElementById('id_numports').required = false;
+                document.getElementById('id_maker').required = false;
+                document.getElementById('id_discont').required = false;
+            }
+            else
+            {
+                document.getElementById('id_consoleName').required = true;
+                document.getElementById('id_online').required = true;
+                document.getElementById('id_numports').required = true;
+                document.getElementById('id_maker').required = true;
+                document.getElementById('id_discont').required = true;
+            }
+        }
+    </script>
+</head>
+<body>
+    {% load staticfiles %}
+    {% url 'insertConsole' as console %}
+    {% if status.success %}
+
+        <ul>
+            <li style="color: green;"> {{ status.success }} </li>
+        </ul>
+    {% elif status.error %}
+        <ul>
+            <li style="color: red;"> {{ status.error }} </li>
+        </ul>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+            {{ form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+<body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        function changeRequired()
+        { 
+            if (document.getElementById('id_action').value == "update" || document.getElementById('id_action').value == "delete")
+            {
+                console.log("hello")
+                document.getElementById('id_pubName').required = true;
+                document.getElementById('id_location').required = false;
+                document.getElementById('id_founded').required = false;
+            }
+            else
+            {
+                console.log("insert")
+                document.getElementById('id_pubName').required = true;
+                document.getElementById('id_location').required = true;
+                document.getElementById('id_founded').required = true;
+            }
+        }
+    </script>
+</head>
+<body>
+    {% load staticfiles %}
+    {% url 'insertConsole' as console %}
+    {% if status.success %}
+
+        <ul>
+            <li style="color: green;"> {{ status.success }} </li>
+        </ul>
+    {% elif status.error %}
+        <ul>
+            <li style="color: red;"> {{ status.error }} </li>
+        </ul>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+            {{ form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+<body>
+</html>

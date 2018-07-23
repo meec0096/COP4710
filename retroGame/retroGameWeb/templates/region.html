@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        function changeRequired()
+        { 
+            if (document.getElementById('id_action').value == "update")
+            {
+                console.log("arlo")
+                document.getElementById('id_newRegionName').type = "text"
+                document.getElementById('id_newRegionName').required = true;
+            }
+            else
+            {
+                document.getElementById('id_newRegionName').type = "hidden";
+                document.getElementById('id_newRegionName').required = false;
+            }
+        }
+    </script>
+</head>
+<body>
+    {% load staticfiles %}
+    {% url 'insertConsole' as console %}
+    {% if status.success %}
+
+        <ul>
+            <li style="color: green;"> {{ status.success }} </li>
+        </ul>
+    {% elif status.error %}
+        <ul>
+            <li style="color: red;"> {{ status.error }} </li>
+        </ul>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+            {{ form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+<body>
+</html>
