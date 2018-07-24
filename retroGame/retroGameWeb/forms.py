@@ -35,6 +35,9 @@ class ConsoleForm(forms.Form):
     maker = forms.CharField(max_length = 20, label =  "Maker:", required = False)
     discont = forms.ChoiceField(label = "Discontinued? ", choices = BOOLEAN, required = False)
 
+class ReleaseDateForm(forms.Form):
+    reldate = forms.DateField(label = "Release Date:", input_formats = ['%Y/%m/%d'], widget = forms.DateInput(format = r"%Y/%m/%d"), required = True)
+
 class ContributorForm(forms.Form):
     action = forms.ChoiceField(label = "Action:", widget = forms.Select(attrs = {'onchange': "changeRequired(); "}),choices = db_action)
     firstName = forms.CharField(max_length = 20, label = "First Name", required = True)

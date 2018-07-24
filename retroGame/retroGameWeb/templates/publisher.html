@@ -23,7 +23,7 @@
 </head>
 <body>
     {% load staticfiles %}
-    {% url 'insertConsole' as console %}
+    {% url 'insertPublisher' as insertPublisher %}
     {% if status.success %}
 
         <ul>
@@ -40,5 +40,10 @@
             {{ form.as_p }}
         <input type="submit" value="Submit" />
     </form>
+
+    {% if status.link %}
+        <a href = "{{insertPublisher}}" > Would You Like to Insert a Publisher? </a>
+    {% endif%}
+
 <body>
 </html>

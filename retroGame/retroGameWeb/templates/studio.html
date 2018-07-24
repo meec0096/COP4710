@@ -20,7 +20,7 @@
 </head>
 <body>
     {% load staticfiles %}
-    {% url 'insertConsole' as console %}
+    {% url 'insertStudio' as insertStudio %}
     {% if status.success %}
 
         <ul>
@@ -38,4 +38,7 @@
         <input type="submit" value="Submit" />
     </form>
 <body>
+    {% if status.link %}
+        <a href = "{{insertStudio}}" > Would You Like to Insert a Studio? </a>
+    {% endif%}
 </html>
