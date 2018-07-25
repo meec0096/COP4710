@@ -1,15 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Region,Game,Studio,Publisher,Console, Contributor,Gamerelease,Develops,Publishes
-from .forms import ConsoleForm,ContributorForm,RegionForm,StudioForm,PublisherForm,GameForm, ReleaseDateForm
+from .models import Region,Game,Studio,Publisher,Console, Contributor,Gamerelease,Develops,Publishes,Contributes
+from .forms import ConsoleForm,ContributorForm,RegionForm,StudioForm,PublisherForm,GameForm, ReleaseDateForm, SearchForm
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
 from datetime import date
 from django import forms
-
+import random
 
 def index(request):
-    return HttpResponse("index")
+     return render(request, 'index.html')
 
 def Consoleview(request):
     if request.method == 'POST':
@@ -250,49 +250,29 @@ def Gameview(request):
 
     return render(request, 'game.html', {'form': form})
 
-
-
-
 def insertFullGame(request):
     if request.method == "POST":
         form = GameForm(request.POST)
-        form.fields['action'].widget = forms.HiddenInput()
-        form.fields['action'].required = False
+        form.HideAction()
         status = dict()
         if form.is_valid():
-            if int(form.cleaned_data['online']) == 3:
+            gameDB = form.validate_data()
+            if gameDB == None:
                 status['error'] = "Online Field Value is not valid"
             else:
-                gameDB = {
-                    'title': form.cleaned_data['title'],
-                    'maingenre': form.cleaned_data['maingenre'],
-                    'online': form.cleaned_data['online'],
-                    'numplayers': form.cleaned_data['numplayers'],
-                }
                 request.session['insert'] = True
                 request.session['gameObj'] = gameDB
                 status['success'] = "Added Game Record"
                 print("request.session: ", request.session['gameObj'])
                 return HttpResponseRedirect("SelectPublish")
-            return render(request, 'game.html', {'form': form, 'status':status})
-
+        return render(request, 'game.html', {'form': form, 'status':status})
     else:
         form = GameForm()
-
         request.session.flush()
-
-        form.fields['action'].widget = forms.HiddenInput()
-        form.fields['action'].required = False
-        form.fields['title'].required = True
-        form.fields['maingenre'].required = True
-        form.fields['online'].required = True
-        form.fields['numplayers'].required = True
+        form.HideAction()
+        form.setRequired()
 
     return render(request, 'game.html', {'form': form})
-
-
-
-
 
 def SelectPublisher(request):
   # if this is a POST request we need to process the form data
@@ -300,15 +280,11 @@ def SelectPublisher(request):
         # create a form instance and populate it with data from the request:
         form = PublisherForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
         if form.is_valid():
             if Publisher.objects.filter(pubname = form.cleaned_data['pubName']).exists():
-                print("publisher exists")
                 request.session['pub_id']= Publisher.objects.get(pubname = form.cleaned_data['pubName']).pubid
                 status['success'] = "Found Record In Database"
-                print("publisher requestion.session ", request.session['pub_id'])
                 return HttpResponseRedirect("SelectStudio")
             else:
                 status['error'] = "Could Not Find a Record in Database"
@@ -316,9 +292,9 @@ def SelectPublisher(request):
                 return render(request, 'publisher.html', {'form': form, 'status': status})
     else:
         form = PublisherForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
+        form.setSelect()
+
     return render(request, 'publisher.html', {'form': form})
 
 
@@ -328,44 +304,35 @@ def insertPublisher(request):
         # create a form instance and populate it with data from the request:
         form = PublisherForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
         if form.is_valid():
-            pubDB = {
-                'pubName': form.cleaned_data['pubName'],
-                'location': form.cleaned_data['location'],
-                'founded': form.cleaned_data['founded']
-            }
-            request.session['pubDB'] = pubDB
-            status['success'] = "Added Record"
-            print("Insertpublisher requestion.session ", request.session['pubDB'])
-
-            return HttpResponseRedirect("SelectStudio")
+            pubDB = form.validate_data()
+            if pubDB != None:
+                request.session['pubDB'] = pubDB
+                status['success'] = "Added Record"
+                print("Insertpublisher requestion.session ", request.session['pubDB'])
+                return HttpResponseRedirect("SelectStudio")
+            else:
+                status['error'] = "Year cannot be negative"
+                return render(request, 'publisher.html', {'form': form, 'status': status})
     else:
         form = PublisherForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['pubName'].required = False
-            form.fields['location'].required = True
-            form.fields['founded'].required = True
+        form.HideAction()
+        form.setRequired()
     return render(request, 'publisher.html', {'form': form})
 
+''' IN HERE CODE UP '''
 def SelectStudio(request):
-  # if this is a POST request we need to process the form data
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
         form = StudioForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
+
         if form.is_valid():
             if Studio.objects.filter(studioname = form.cleaned_data['studioName']).exists():
                 request.session['studio_id']= Studio.objects.get(studioname = form.cleaned_data['studioName']).studioid
                 status['success'] = "Found Record In Database"
                 print("studio requestion.session ", request.session['studio_id'])
-
                 return HttpResponseRedirect("SelectConsole")
             else:
                 status['error'] = "Could Not Find a Record in Database"
@@ -373,9 +340,9 @@ def SelectStudio(request):
                 return render(request, 'studio.html', {'form': form, 'status': status})
     else:
         form = StudioForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
+        form.setSelect()
+
     return render(request, 'studio.html', {'form': form})
 
 def insertStudio(request):
@@ -383,40 +350,30 @@ def insertStudio(request):
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = StudioForm(request.POST)
+        form.HideAction()
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
         if form.is_valid():
-            studioDB = {
-                'studioName': form.cleaned_data['studioName'],
-                'location': form.cleaned_data['location'],
-                'founded': form.cleaned_data['founded']                
-            }
-            request.session['studioDB'] = studioDB
-            status['success'] = "Added Record"             
-            print("insertStudio requestion.session ", request.session['studioDB'])
-
-            return HttpResponseRedirect("SelectConsole")
+            studioDB = form.validate_data()
+            if studioDB != None:
+                request.session['studioDB'] = studioDB
+                status['success'] = "Added Record"             
+                print("insertStudio requestion.session ", request.session['studioDB'])
+                return HttpResponseRedirect("SelectConsole")
+            else:
+                status['error'] = "Year cannot be negative"
+                return render(request, 'publisher.html', {'form': form, 'status': status})
     else:
         form = StudioForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['studioName'].required = False
-            form.fields['location'].required = True
-            form.fields['founded'].required = True
+        form.HideAction()
+        form.setRequired()
     return render(request, 'publisher.html', {'form': form})
 
 
 def SelectConsole(request):
-  # if this is a POST request we need to process the form data
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
         form = ConsoleForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
         if form.is_valid():
             if Console.objects.filter(name = form.cleaned_data['consoleName']).exists():
                 request.session['console_id'] = Console.objects.get(name = form.cleaned_data['consoleName']).consoleid
@@ -429,10 +386,8 @@ def SelectConsole(request):
                 return render(request, 'console.html', {'form': form, 'status': status})
     else:
         form = ConsoleForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
-            form.fields['consoleName'].required = True
+        form.HideAction()
+        form.setSelect()
     return render(request, 'console.html', {'form': form})
 
 def insertConsole(request):
@@ -441,32 +396,21 @@ def insertConsole(request):
         # create a form instance and populate it with data from the request:
         form = ConsoleForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
         if form.is_valid():
-            if int(form.cleaned_data['online']) != 3 and int(form.cleaned_data['discont']) != 3:
-                consoleDB = {
-                    'consoleName': form.cleaned_data['consoleName'],
-                    'online': int(form.cleaned_data['online']),
-                    'discont': int(form.cleaned_data['discont']),                
-                    'numports': form.cleaned_data['numports'],
-                    'maker': form.cleaned_data['maker']
-                }
-            request.session['consoleDB'] = consoleDB
-            status['success'] = "Added Record"
-            print("insertConsole requestion.session ", request.session['consoleDB'])
-
-            return HttpResponseRedirect("SelectRegion")
+            consoleDB = form.validate_data()
+            if consoleDB != None:
+                request.session['consoleDB'] = consoleDB
+                status['success'] = "Added Record"
+                print("insertConsole requestion.session ", request.session['consoleDB'])
+                return HttpResponseRedirect("SelectRegion")
+            else:
+                status['error'] = "Invalid value for online and/or discontuined"
+                return render(request, 'publisher.html', {'form': form})
     else:
         form = ConsoleForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['consoleName'].required = False
-            form.fields['online'].required = True
-            form.fields['numports'].required = True
-            form.fields['maker'].required = True
-            form.fields['discont'].required = True
+        form.HideAction()
+        form.setRequired()
     return render(request, 'publisher.html', {'form': form})
 
 def SelectRegion(request):
@@ -475,9 +419,7 @@ def SelectRegion(request):
         # create a form instance and populate it with data from the request:
         form = RegionForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
         if form.is_valid():
             if Region.objects.filter(name = form.cleaned_data['regionName']).exists():
                 request.session['region_id'] = Region.objects.get(name = form.cleaned_data['regionName']).regionid
@@ -491,9 +433,8 @@ def SelectRegion(request):
                 return render(request, 'region.html', {'form': form, 'status': status})
     else:
         form = RegionForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
+        form.setSelect()
     return render(request, 'region.html', {'form': form})
 
 def insertRegion(request):
@@ -502,9 +443,7 @@ def insertRegion(request):
         # create a form instance and populate it with data from the request:
         form = RegionForm(request.POST)
         status = dict()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
         if form.is_valid():
             regionDB = {
                 'regionName': form.cleaned_data['regionName']
@@ -514,9 +453,7 @@ def insertRegion(request):
             return HttpResponseRedirect("insertReleaseDate")
     else:
         form = RegionForm()
-        if request.session['insert']:
-            form.fields['action'].widget = forms.HiddenInput()
-            form.fields['action'].required = False
+        form.HideAction()
     return render(request, 'region.html', {'form': form})
 
 def insertReleaseDate(request):
@@ -527,7 +464,6 @@ def insertReleaseDate(request):
 
         if form.is_valid():
             date = form.cleaned_data['reldate']
-            print("date: ", date)
             req = request.session
 
             ConsoleDB = None
@@ -538,7 +474,6 @@ def insertReleaseDate(request):
             if 'console_id' in request.session:
                 ConsoleDB = Console.objects.get(consoleid = request.session['console_id'])
             else:
-                print("hello")
                 req = request.session['consoleDB']
                 ConsoleDB = Console(name = req['consoleName'], online = req['discont'], numports = req['numports'], maker = req['maker'])
             
@@ -569,7 +504,6 @@ def insertReleaseDate(request):
             except ObjectDoesNotExist:
                 print("obj does not exist")
                 GameDB = Game(title = req['title'], maingenre = req['maingenre'], online = req['online'], numplayers = req['numplayers'])
-
             ReleaseDateQuery = Gamerelease.objects.filter(regionid = RegionDB, consoleid = ConsoleDB, gameid = GameDB, reldate = date)
             
             print
@@ -580,6 +514,7 @@ def insertReleaseDate(request):
                 RegionDB.save()
                 ConsoleDB.save()
                 GameDB.save()
+                request_session['game_id'] = GameDB.gameid
                 StudioDB.save()
                 PubDB.save()
                 Gamerelease(regionid = RegionDB, consoleid = ConsoleDB, gameid = GameDB, reldate = date).save()
@@ -595,8 +530,104 @@ def insertReleaseDate(request):
     return render(request, 'region.html', {'form': form})
 
 def insertContributor(request):
-    return HttpResponse("insertContributor")
+       # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = ContributorForm(request.POST)
+        form.HideAction()
+        status = dict()
+        if form.is_valid():
+            if Contributor.objects.filter(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname']).exists():
+                contrid = Contributor.objects.get(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname']).contrid
+                Contributes(gameid = request.session['game_id'], contrid = contrid).save()
+                status['success'] = "Contributor added to Game"
+            else:
+                contriDB = Contributor(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname']).save()
+                Contributes(gameid = request.session['game_id'], contrid = contriDB.contrid).save()
+                status['success'] = "Contributor Inserted And Added to Game"
+            return render(request, 'contributor.html', {'form': form, 'status': status})
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = ContributorForm()
+        form.HideAction()
+        form.setRequired()
+    return render(request, 'contributor.html', {'form': form})
 
+def search(request):
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = SearchForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            data = form.validate_data()
+            if len(data) > 0:
+                datalist = []
+                for item in data:
+                    game = Game.objects.get(gameid = item['GameID'])
+                    console = Console.objects.get(consoleid = item['ConsoleID'])
+                    region = Region.objects.get(regionid = item['RegionID'])
+                    obj = {
+                        'reldate': item['RelDate'],
+                        'game': game.title,
+                        'studio': item['StudioName'],
+                        'publisher': item['PubName'],
+                        'console': console.name,
+                        'region': region.name
+                    } 
+                    
+                    datalist.append(obj)
+                return render(request, 'search.html', {'form': form, 'data': datalist})
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = SearchForm()
 
+    return render(request, 'search.html', {'form': form})
 
+def recommend(request):
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = SearchForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            data = form.validate_data()
+            datalist = []
+            if len(data) == 1:
+                for item in data:
+                    game = Game.objects.get(gameid = item['GameID'])
+                    console = Console.objects.get(consoleid = item['ConsoleID'])
+                    region = Region.objects.get(regionid = item['RegionID'])
+                    obj = {
+                        'reldate': item['RelDate'],
+                        'game': game.title,
+                        'studio': item['StudioName'],
+                        'publisher': item['PubName'],
+                        'console': console.name,
+                        'region': region.name
+                    }
+                    datalist.append(obj)
+            elif len(data) > 1:
+                index = random.randint(0, len(data) - 1)
+                select = data[index]
 
+                game = Game.objects.get(gameid = select['GameID'])
+                console = Console.objects.get(consoleid = select['ConsoleID'])
+                region = Region.objects.get(regionid = select['RegionID'])
+
+                obj = {
+                    'reldate': select['RelDate'],
+                    'game': game.title,
+                    'studio': select['StudioName'],
+                    'publisher': select['PubName'],
+                    'console': console.name,         
+                     'region': region.name
+                }
+
+                datalist.append(obj)
+            
+            return render(request, 'recommend.html', {'form': form, 'data': datalist})
+    else:
+        form = SearchForm()
+
+    return render(request, 'recommend.html', {'form': form})

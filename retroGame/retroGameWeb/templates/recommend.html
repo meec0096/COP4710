@@ -1,4 +1,6 @@
 <!doctype html>
+{% load staticfiles %}
+{% url 'index' as index %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -10,7 +12,7 @@
     <title>What's Next?</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="../../../../dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="jumbotron.css" rel="stylesheet">
@@ -27,19 +29,19 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{index}}">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="search.html">Search</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item active">
             <a class="nav-link" href="recommend.html">Recommend</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="about.html">About</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle active" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
+            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
             <div class="dropdown-menu" aria-labelledby="dropdown01">
               <a class="dropdown-item" href="insertnew1.html">Insert New Record</a>
               <a class="dropdown-item" href="publisher.html">Publisher</a>
@@ -59,36 +61,77 @@
       <!-- Main jumbotron for a primary marketing message or call to action -->
       <div class="jumbotron">
         <div class="container">
-          <h1 class="display-3">Game CRUD</h1>
-          <p>Choose between creating, updating or deleting a Game</p>
+          <h1 class="display-3">Get A Game Recommended</h1>
+          <p>Enter information below to get a similar game recommended to you, or have one recommended at complete random!</p>
         </div>
       </div>
 
-      <div class="container">
+<div class="container">
       <div class="card-deck mb-3 text-center">
-        <div class="card mb-12 box-shadow">
+        <div class="card mb-6 box-shadow">
           <div class="card-header">
-            <h4 class="my-0 font-weight-normal">Search</h4>
+            <h4 class="my-0 font-weight-normal">Recommend Similar Game</h4>
           </div>
           <div class="card-body">
-<!--             <h1 class="card-title pricing-card-title">$0 <small class="text-muted">/ mo</small></h1> -->
-<!--             <ul class="list-unstyled mt-3 mb-4">
+<!--             <h1 class="card-title pricing-card-title">$0 <small class="text-muted">/ mo</small></h1>
+            <ul class="list-unstyled mt-3 mb-4">
               <li>10 users included</li>
               <li>2 GB of storage</li>
-
-              ###### CONTENT GOES HERE!!!!!! #####
-
               <li>Email support</li>
               <li>Help center access</li>
             </ul> -->
-            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Submit</button>
+            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Recommend Similar</button>
+          </div>
+        </div>
+        <div class="card mb-6 box-shadow">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Recommend Random Game</h4>
+          </div>
+          <div class="card-body">
+            <form method="POST">
+              {% csrf_token %}
+              <table>
+                {{ form.as_table }}
+              </table>
+               <input type="submit" class="btn btn-lg btn-block btn-outline-primary" value = "Submit">
+            </form>
           </div>
         </div>
       </div>
+
+       <div class="container">
+        <table class = "table">
+          <thead>
+            <th scope = "col"> Game </th>
+            <th scope = "col"> Release Date </th>
+            <th scope = "col"> Region </th>
+            <th scope = "col"> Console </th>
+            <th scope = "col"> Studio </th>
+            <th scope = "col"> Publisher </th>
+
+          <thead>
+
+          {% for item in data %}
+            <tbody>
+              <tr>
+                <td> {{ item.game }} </td>
+                <td> {{ item.reldate }} </td>
+                <td> {{ item.region}} </td>
+                <td> {{ item.console }} </td>
+                <td> {{ item.studio }} </td>
+                <td> {{ item.publisher}} </td>
+
+              </tr>
+            </tbody>
+          {% endfor %}
+        </table>
+      </div> <!-- /container -->
+
 
       <div class="container">
         <hr>
       </div> <!-- /container -->
+
 
     </main>
 
@@ -100,8 +143,8 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
-    <script src="../../../../assets/js/vendor/popper.min.js"></script>
-    <script src="../../../../dist/js/bootstrap.min.js"></script>
+    <script>window.jQuery || document.write("""<script src={% static 'css/jquery-slim.min.js' %}><\/script>"""")</script>
+    <script src="{% static 'css/popper.min.js' %}"></script>
+    <script src="{% static 'css/bootstrap.min.css'%}"></script>
   </body>
 </html>

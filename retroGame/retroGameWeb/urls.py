@@ -18,6 +18,8 @@ urlpatterns = [
     path('insertStudio', views.insertStudio, name = "insertStudio"),
     path('insertConsole', views.insertConsole, name = "insertConsole"),
     path('insertRegion', views.insertRegion, name = "insertRegion"),
-    path('insertContributor', views.insertContributor, name = "insertContributor"),
+    #path('insertContributor', views.insertContributor, name = "insertContributor"),
     path('insertReleaseDate', views.insertReleaseDate, name = "insertReleaseDate"),
+    path('search', views.search, name = "Search"),
+    path('recommend', views.recommend, name = "Recommend")
 ]

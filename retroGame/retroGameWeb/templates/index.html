@@ -1,49 +1,111 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script>
-        function changeRequired()
-        { 
-            if (document.getElementById('id_action').value == "update" || document.getElementById('id_action').value == "delete")
-            {
-                console.log("bye")
-                document.getElementById('id_consoleName').required = true;
-                document.getElementById('id_numports').required = false;
-                document.getElementById('id_maker').required = false;
-                document.getElementById('id_online').required = false;
-                document.getElementById('id_discont').required = false;
-            }
-            else 
-            {
-                document.getElementById('id_consoleName').required = true;
-                document.getElementById('id_numports').required = true;
-                document.getElementById('id_maker').required = true;
-                document.getElementById('id_online').required = true;
-                document.getElementById('id_discont').required = true;
-            }
-        }
-    </script>
-</head>
-<body>
-    {% load staticfiles %}
-    {% url 'insertConsole' as console %}
-    {% if status.success %}
+<!doctype html>
+{% load staticfiles %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
 
-        <ul>
-            <li style="color: green;"> {{ status.success }} </li>
-        </ul>
-    {% elif status.error %}
-        <ul>
-            <li style="color: red;"> {{ status.error }} </li>
-        </ul>
-    {% endif %}
+    <title>What's Next?</title>
 
-    <form method="POST">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
-        <input type="submit" value="Submit" />
-    </form>
-<body>
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="jumbotron.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="#">Menu</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html">Home<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="search.html">Search</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="recommend.html">Recommend</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="about.html">About</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+              <a class="dropdown-item" href="insertnew1.html">Insert New Record</a>
+              <a class="dropdown-item" href="publisher.html">Publisher</a>
+              <a class="dropdown-item" href="studio.html">Studio</a>
+              <a class="dropdown-item" href="game.html">Game</a>
+              <a class="dropdown-item" href="console.html">Console</a>
+              <a class="dropdown-item" href="region.html">Region</a>
+              <a class="dropdown-item" href="contributor.html">Contributor</a>
+            </div>
+          </li>
+        </ul>
+        <!-- <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form> -->
+      </div>
+    </nav>
+
+    <main role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <div class="container">
+          <h1 class="display-3">What's Next Game Database</h1>
+<!--           <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p> -->
+<!--           <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p> -->
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+          <div class="col-md-6">
+            <h2>What We Do:</h2>
+            <p>What’s Next Game Database is a collection of data designed around the idea of finding new games to play. What’s Next allows fans of video games to peruse and select a number of different factors in order to find games they might like to play. This application is free of a lot of the unnecessary bog that tends to weigh down similar databases. There is no arbitrary numeric rating system, no need to create accounts, it’s just about the games and finding more to play.</p>
+<!--             <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p> -->
+          </div>
+          <div class="col-md-6">
+            <h2>How To Use:</h2>
+            <p>This application allows users the option to search for new games to play. To search for a new game, go to the search page and select values you would like to return results for. To have a game recommended to you, click the recommend tab and follow the instructions.</p>
+<!--             <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p> -->
+          </div>
+<!--           <div class="col-md-4">
+            <h2>Heading</h2>
+            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+          </div> -->
+        </div>
+
+        <hr>
+
+      </div> <!-- /container -->
+
+    </main>
+
+    <footer class="container">
+      <p>&copy; Gold Team 2018</p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+    <script src="../../../../assets/js/vendor/popper.min.js"></script>
+    <script src="../../../../dist/js/bootstrap.min.js"></script>
+  </body>
 </html>
