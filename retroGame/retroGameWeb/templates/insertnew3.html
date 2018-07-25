@@ -1,4 +1,17 @@
 <!doctype html>
+{% load staticfiles %}
+{% url 'index' as index %}
+{% url 'search' as search %}
+{% url 'recommend' as recommend %}
+{% url 'GameDetails' as insertRecord %}
+{% url 'about' as about %}
+{% url 'Console' as console  %}
+{% url 'Contributor' as contributor  %}
+{% url 'Region' as region  %}
+{% url 'Studio' as studio  %}
+{% url 'Game' as game  %}
+{% url 'insertPublisher' as insertPublish%}
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -10,8 +23,7 @@
     <title>What's Next?</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="../../../../dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="jumbotron.css" rel="stylesheet">
   </head>
@@ -27,27 +39,27 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href=" {{ index }}">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="search.html">Search</a>
+            <a class="nav-link" href="{{ search }}">Search</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="recommend.html">Recommend</a>
+            <a class="nav-link" href="{{ recommend }}">Recommend</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="about.html">About</a>
+          <li class="nav-item active">
+            <a class="nav-link" href="{{ about }}">About</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle active" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
             <div class="dropdown-menu" aria-labelledby="dropdown01">
-              <a class="dropdown-item" href="insertnew1.html">Insert New Record</a>
-              <a class="dropdown-item" href="publisher.html">Publisher</a>
-              <a class="dropdown-item" href="studio.html">Studio</a>
-              <a class="dropdown-item" href="game.html">Game</a>
-              <a class="dropdown-item" href="console.html">Console</a>
-              <a class="dropdown-item" href="region.html">Region</a>
-              <a class="dropdown-item" href="contributor.html">Contributor</a>
+              <a class="dropdown-item" href=" {{ insertRecord }}">Insert New Record</a>
+              <a class="dropdown-item" href=" {{ publisher }}">Publisher</a>
+              <a class="dropdown-item" href=" {{ studio }}">Studio</a>
+              <a class="dropdown-item" href=" {{ game }}">Game</a>
+              <a class="dropdown-item" href="{{ console }}">Console</a>
+              <a class="dropdown-item" href="{{ region }}">Region</a>
+              <a class="dropdown-item" href="{{ contributor }}">Contributor</a>
             </div>
           </li>
         </ul>
@@ -68,20 +80,27 @@
       <div class="card-deck mb-3 text-center">
         <div class="card mb-12 box-shadow">
           <div class="card-header">
-            <h4 class="my-0 font-weight-normal">Step 3</h4>
+            <h4 class="my-0 font-weight-normal">Select Publisher</h4>
           </div>
           <div class="card-body">
-<!--             <h1 class="card-title pricing-card-title">$0 <small class="text-muted">/ mo</small></h1> -->
-<!--             <ul class="list-unstyled mt-3 mb-4">
-              <li>10 users included</li>
-              <li>2 GB of storage</li>
-
-              ###### CONTENT GOES HERE!!!!!! #####
-
-              <li>Email support</li>
-              <li>Help center access</li>
-            </ul> -->
-            <button type="button" class="btn btn-lg btn-block btn-outline-primary">Submit</button>
+            <p> {{status ]}/p>
+            {% if status.success %}
+              <ul>
+                <li style="color: green;"> {{ status.success }} </li>
+              </ul>
+            {% elif status.error %}
+              <ul>
+                  <li style="color: red;"> {{ status.error }} </li>
+              </ul>
+            {% endif %}
+            <form method = "POST">
+              {% csrf_token %}
+              {{ form.as_p }}
+              {% if status.link %}
+                <a href = "{{insertPublish}}"> Would You Like To Insert a Publisher? </a>
+              {% endif %}
+              <input type="Submit" class="btn btn-lg btn-block btn-outline-primary" value = "Submit">
+            </form>
           </div>
         </div>
       </div>
@@ -94,7 +113,7 @@
            <h4 class="my-0 font-weight-normal">Completion Status:</h4>
           </div>
           <div class="card-body">
-           <img class="card-img-bot" src="step3.png" alt="Card image cap">
+           <img class="card-img-bot" src="{% static 'images/step3.png' %}" alt="Card image cap">
           </div>
          </div>
         <hr>
@@ -114,8 +133,8 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
-    <script src="../../../../assets/js/vendor/popper.min.js"></script>
-    <script src="../../../../dist/js/bootstrap.min.js"></script>
+    <script>window.jQuery || document.write("<script src='{% static 'js/jquery-slim.min.js' %}'><\/script>")</script>
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'css/bootstrap.min.css'%}"></script>
   </body>
 </html>

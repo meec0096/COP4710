@@ -11,14 +11,17 @@ from django.db import models
 class Console(models.Model):
     consoleid = models.AutoField(db_column='ConsoleID', primary_key=True)  # Field name made lowercase.
     name = models.CharField(max_length=20, blank=True, null=True)
-    online = models.TextField(blank=True, null=True)  # This field type is a guess.
+    online = models.IntegerField(blank=True, null=True)
     numports = models.IntegerField(db_column='numPorts', blank=True, null=True)  # Field name made lowercase.
     maker = models.CharField(max_length=20, blank=True, null=True)
-    discont = models.TextField(db_column='Discont', blank=True, null=True)  # Field name made lowercase. This field type is a guess.
+    discont = models.IntegerField(db_column='Discont', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'console'
+
+    def __str__(self):
+        return self.name
 
 
 class Contributes(models.Model):
@@ -40,6 +43,8 @@ class Contributor(models.Model):
         managed = False
         db_table = 'contributor'
 
+    def __str__(self):
+        return self.firstname + " " + self.lastname
 
 class Develops(models.Model):
     studioid = models.ForeignKey('Studio', models.DO_NOTHING, db_column='StudioID')  # Field name made lowercase.
@@ -50,19 +55,20 @@ class Develops(models.Model):
         db_table = 'develops'
         unique_together = (('gameid', 'studioid'),)
 
-
 class Game(models.Model):
     gameid = models.AutoField(db_column='GameID', primary_key=True)  # Field name made lowercase.
     title = models.CharField(max_length=30, blank=True, null=True)
     maingenre = models.CharField(db_column='MainGenre', max_length=15, blank=True, null=True)  # Field name made lowercase.
-    online = models.TextField(blank=True, null=True)  # This field type is a guess.
+    online = models.IntegerField(blank=True, null=True)
     numplayers = models.IntegerField(db_column='NumPlayers', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'game'
 
-
+    def __str__(self):
+        return self.title
+    
 class Gamerelease(models.Model):
     releaseid = models.AutoField(db_column='ReleaseID', primary_key=True)  # Field name made lowercase.
     reldate = models.DateField(db_column='RelDate', blank=True, null=True)  # Field name made lowercase.
@@ -74,6 +80,9 @@ class Gamerelease(models.Model):
         managed = False
         db_table = 'gamerelease'
 
+    def __str__(self):
+        return  "proiejafojaoifjaoifjaoifja"
+
 
 class Publisher(models.Model):
     pubid = models.AutoField(db_column='PubID', primary_key=True)  # Field name made lowercase.
@@ -84,6 +93,9 @@ class Publisher(models.Model):
     class Meta:
         managed = False
         db_table = 'publisher'
+
+    def __str__(self):
+        return self.pubname
 
 
 class Publishes(models.Model):
@@ -104,6 +116,9 @@ class Region(models.Model):
         managed = False
         db_table = 'region'
 
+    def __str__(self):
+        return self.name
+
 
 class Studio(models.Model):
     studioid = models.AutoField(db_column='StudioID', primary_key=True)  # Field name made lowercase.
@@ -114,3 +129,6 @@ class Studio(models.Model):
     class Meta:
         managed = False
         db_table = 'studio'
+
+    def __str__(self):
+        return self.studioname

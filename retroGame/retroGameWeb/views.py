@@ -11,55 +11,76 @@ import random
 def index(request):
      return render(request, 'index.html')
 
+def about(request):
+     return render(request, 'about.html')
+
 def Consoleview(request):
     if request.method == 'POST':
         status = dict()
         form = ConsoleForm(request.POST)
-        
+        consoles = None
+        errorList = []
         if form.is_valid():
             if form.cleaned_data['action'] == "none":
-                status['error'] = "Invalid Action"
+                errorList.append("Invalid Action")
             elif form.cleaned_data['action'] == "insert":
                 if Console.objects.filter(name = form.cleaned_data['consoleName']).exists():
-                    status['error'] = "Record Exists in Database"
+                    errorList.append("Record Exists in Database")
                 else:
                     if int(form.cleaned_data['online']) != 3 and int(form.cleaned_data['discont']) != 3:
                         x = form.cleaned_data
                         Console(name = x['consoleName'], online = int(x['online']), numports = x['numports'], maker = x['maker'], discont = x['discont']).save()
                         status['success'] = "Added Record"
+                        consoles = Console.objects.all()
                     else:
                         status['error'] = "Invalid Data (online and/or discontinuted Field)"
             elif form.cleaned_data['action'] == "delete":
                 if Console.objects.filter(name = form.cleaned_data['consoleName']).exists():
                     Console.objects.get(name = form.cleaned_data['consoleName']).delete()
                     status['success'] = "Record Deleted"
+                    consoles = Console.objects.all()
                 else:
-                    status['error'] = "Record Does Not Exist"
+                    errorList.append("Record Does Not Exist")
             else:
                 if Console.objects.filter(name = form.cleaned_data['consoleName']).exists():
                     consoleDB = Console.objects.get(name = form.cleaned_data['consoleName'])
-                    if form.cleaned_data['online'] != 3:
+                    if int(form.cleaned_data['online']) != 3:
                         consoleDB.online = form.cleaned_data['online']
-                    if form.cleaned_data['discont'] != 3:
+                    else:
+                        errorList.append("Not Valid Choice for online. Not Updating Field.")
+                    if int(form.cleaned_data['discont']) != 3:
                         consoleDB.discont = form.cleaned_data['discont']
+                    else:
+                        errorList.append("Not Valid Choice for Discontinued. Not Updating Field.")
+
                     if form.cleaned_data['maker'] != None:
                         consoleDB.maker = form.cleaned_data['maker']
+
                     if form.cleaned_data['numports'] != None:
                         consoleDB.numports = form.cleaned_data['numports']
+
+
                     consoleDB.save()   
+                    status['success'] = "Record Updated"
+                    consoles = Console.objects.all()
                 else:
-                    status['success'] = "Record Does Not Exist"
-            return render(request, 'console.html', { 'form': form, 'status':status } )
+                    errorList.append("Record Does Not Exist")
+                    consoles = Console.objects.all()
+
+            status['error'] = errorList
+            return render(request, 'console.html', { 'form': form, 'status':status, 'consoles': consoles } )
     else:
         form = ConsoleForm()
+        consoles = Console.objects.all()
+    return render(request, 'console.html', {'form': form, 'consoles': consoles})
 
-    return render(request, 'console.html', {'form': form})
 def Contributorview(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = ContributorForm(request.POST)
         status = dict()
+        errorList = []
         if form.is_valid():
             if form.cleaned_data['action'] == "none":
                 status['error'] = "Invalid Action"
@@ -210,25 +231,29 @@ def Gameview(request):
     if request.method == 'POST':
         form = GameForm(request.POST)
         status = dict()
+        errorList = []
+        games = None
         if form.is_valid():
             if form.cleaned_data['action'] == "none":
-                status['error'] = "Invalid Error"
+                errorList.append("Invalid Error")
             elif form.cleaned_data['action'] == "insert":
                 if Game.objects.filter(title = form.cleaned_data['title']).exists():
-                    status['error'] = "Record Exists in Database"
+                    errorList.append("Record Exists in Database")
                 else:
                     if int(form.cleaned_data['online']) != 3:
                         x = form.cleaned_data
                         Game(title = x['title'], online = x['online'], numplayers = x['numplayers'], maingenre = x['maingenre']).save()
                         status['success'] = "Added Record"
+                        games = Game.objects.all()
                     else:
-                        status['error'] = "Invalid option on Online Field"
+                        errorList.append("Invalid option on Online Field")
             elif form.cleaned_data['action'] == "delete":
                 if Game.objects.filter(title = form.cleaned_data['title']).exists():
                     Game.objects.get(title = form.cleaned_data['title']).delete()
                     status['success'] = "Delete Record"
+                    games = Game.objects.all()
                 else:
-                    status['error'] = "Record Does Not Exist"
+                    errorList.append("Record Does Not Exist")
             else:
                 if Game.objects.filter(title = form.cleaned_data['title']).exists():
                     GameDB = Game.objects.get(title = form.cleaned_data['title'])
@@ -237,18 +262,22 @@ def Gameview(request):
 
                     if int(form.cleaned_data['online']) != 3:
                         GameDB.online = form.cleaned_data['online']
+                    else:
+                        errorList.append("Not Valid Field for Online. Not Updating Field")
 
                     if form.cleaned_data['numplayers'] != None:
                         GameDB.numplayers = form.cleaned_data['numplayers']
                     GameDB.save()
                     status['success'] = "Record Updated"
+                    games = Games.objects.all()
                 else:
-                    status['error'] = "Record does Not Exists"
+                    errorList.append("Record does Not Exists")
+            status['error'] = errorList
             return render(request, 'game.html', {'form': form, 'status': status})
     else:
         form = GameForm()
-
-    return render(request, 'game.html', {'form': form})
+        games = Game.objects.all()
+    return render(request, 'game.html', {'form': form, 'games': games})
 
 def insertFullGame(request):
     if request.method == "POST":
@@ -259,20 +288,22 @@ def insertFullGame(request):
             gameDB = form.validate_data()
             if gameDB == None:
                 status['error'] = "Online Field Value is not valid"
+                print("ah sweet baby jesus")
             else:
-                request.session['insert'] = True
+                #request.session['insert'] = True
                 request.session['gameObj'] = gameDB
                 status['success'] = "Added Game Record"
                 print("request.session: ", request.session['gameObj'])
                 return HttpResponseRedirect("SelectPublish")
-        return render(request, 'game.html', {'form': form, 'status':status})
+            print(status)
+        return render(request, 'insertnew1.html', {'form': form, 'status':status})
     else:
         form = GameForm()
         request.session.flush()
         form.HideAction()
         form.setRequired()
 
-    return render(request, 'game.html', {'form': form})
+    return render(request, 'insertnew1.html', {'form': form})
 
 def SelectPublisher(request):
   # if this is a POST request we need to process the form data
@@ -289,13 +320,13 @@ def SelectPublisher(request):
             else:
                 status['error'] = "Could Not Find a Record in Database"
                 status['link'] = "insertPublisher"
-                return render(request, 'publisher.html', {'form': form, 'status': status})
+                return render(request, 'insertnew3.html', {'form': form, 'status': status})
     else:
         form = PublisherForm()
         form.HideAction()
         form.setSelect()
 
-    return render(request, 'publisher.html', {'form': form})
+    return render(request, 'insertnew3.html', {'form': form})
 
 
 def insertPublisher(request):
@@ -314,12 +345,12 @@ def insertPublisher(request):
                 return HttpResponseRedirect("SelectStudio")
             else:
                 status['error'] = "Year cannot be negative"
-                return render(request, 'publisher.html', {'form': form, 'status': status})
+                return render(request, 'insertnew4.html', {'form': form, 'status': status})
     else:
         form = PublisherForm()
         form.HideAction()
         form.setRequired()
-    return render(request, 'publisher.html', {'form': form})
+    return render(request, 'insertnew4.html', {'form': form})
 
 ''' IN HERE CODE UP '''
 def SelectStudio(request):
@@ -337,13 +368,13 @@ def SelectStudio(request):
             else:
                 status['error'] = "Could Not Find a Record in Database"
                 status['link'] = "SelectConsole"
-                return render(request, 'studio.html', {'form': form, 'status': status})
+                return render(request, 'insertnew5.html', {'form': form, 'status': status})
     else:
         form = StudioForm()
         form.HideAction()
         form.setSelect()
 
-    return render(request, 'studio.html', {'form': form})
+    return render(request, 'insertnew5.html', {'form': form})
 
 def insertStudio(request):
     # if this is a POST request we need to process the form data
@@ -361,12 +392,12 @@ def insertStudio(request):
                 return HttpResponseRedirect("SelectConsole")
             else:
                 status['error'] = "Year cannot be negative"
-                return render(request, 'publisher.html', {'form': form, 'status': status})
+                return render(request, 'insertnew6.html', {'form': form, 'status': status})
     else:
         form = StudioForm()
         form.HideAction()
         form.setRequired()
-    return render(request, 'publisher.html', {'form': form})
+    return render(request, 'insertnew6.html', {'form': form})
 
 
 def SelectConsole(request):
@@ -383,12 +414,12 @@ def SelectConsole(request):
             else:
                 status['error'] = "Could Not Find a Record in Database"
                 status['link'] = "SelectConsole"
-                return render(request, 'console.html', {'form': form, 'status': status})
+                return render(request, 'insertnew7.html', {'form': form, 'status': status})
     else:
         form = ConsoleForm()
         form.HideAction()
         form.setSelect()
-    return render(request, 'console.html', {'form': form})
+    return render(request, 'insertnew7.html', {'form': form})
 
 def insertConsole(request):
     # if this is a POST request we need to process the form data
@@ -406,12 +437,12 @@ def insertConsole(request):
                 return HttpResponseRedirect("SelectRegion")
             else:
                 status['error'] = "Invalid value for online and/or discontuined"
-                return render(request, 'publisher.html', {'form': form})
+                return render(request, 'insertnew8.html', {'form': form})
     else:
         form = ConsoleForm()
         form.HideAction()
         form.setRequired()
-    return render(request, 'publisher.html', {'form': form})
+    return render(request, 'insertnew8.html', {'form': form})
 
 def SelectRegion(request):
   # if this is a POST request we need to process the form data
@@ -430,12 +461,12 @@ def SelectRegion(request):
             else:
                 status['error'] = "Could Not Find a Record in Database"
                 status['link'] = "SelectRegion"
-                return render(request, 'region.html', {'form': form, 'status': status})
+                return render(request, 'insertnew9.html', {'form': form, 'status': status})
     else:
         form = RegionForm()
         form.HideAction()
         form.setSelect()
-    return render(request, 'region.html', {'form': form})
+    return render(request, 'insertnew9.html', {'form': form})
 
 def insertRegion(request):
   # if this is a POST request we need to process the form data
@@ -454,7 +485,7 @@ def insertRegion(request):
     else:
         form = RegionForm()
         form.HideAction()
-    return render(request, 'region.html', {'form': form})
+    return render(request, 'insertnew10.html', {'form': form})
 
 def insertReleaseDate(request):
       # if this is a POST request we need to process the form data
@@ -514,7 +545,7 @@ def insertReleaseDate(request):
                 RegionDB.save()
                 ConsoleDB.save()
                 GameDB.save()
-                request_session['game_id'] = GameDB.gameid
+                request.session['game_id'] = GameDB.gameid
                 StudioDB.save()
                 PubDB.save()
                 Gamerelease(regionid = RegionDB, consoleid = ConsoleDB, gameid = GameDB, reldate = date).save()
@@ -527,7 +558,7 @@ def insertReleaseDate(request):
                 return HttpResponseRedirect("insertContributor")
     else:
         form = ReleaseDateForm()
-    return render(request, 'region.html', {'form': form})
+    return render(request, 'insertnew10.html', {'form': form})
 
 def insertContributor(request):
        # if this is a POST request we need to process the form data
@@ -545,13 +576,13 @@ def insertContributor(request):
                 contriDB = Contributor(firstname = form.cleaned_data['firstname'], lastname = form.cleaned_data['lastname']).save()
                 Contributes(gameid = request.session['game_id'], contrid = contriDB.contrid).save()
                 status['success'] = "Contributor Inserted And Added to Game"
-            return render(request, 'contributor.html', {'form': form, 'status': status})
+            return render(request, 'insertnew11.html', {'form': form, 'status': status})
     # if a GET (or any other method) we'll create a blank form
     else:
         form = ContributorForm()
         form.HideAction()
         form.setRequired()
-    return render(request, 'contributor.html', {'form': form})
+    return render(request, 'insertnew11.html', {'form': form})
 
 def search(request):
     # if this is a POST request we need to process the form data
